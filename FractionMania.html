@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Fraction Mania</title>
+    <link href='https://fonts.googleapis.com/css?family=Mochiy Pop P One' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/css?family=Lemon' rel='stylesheet'>
+    <style>
+    
+    
+      body {
+        text-align: center;
+        font-family: Mochiy Pop P One;
+        letter-spacing: 2px;
+        background-color: lightcyan;
+      }
+      
+      p {
+        font-family: Mochiy Pop P One;
+        text-shadow: rgba(58, 52, 55, 0.35) 2px 2px 3px;
+      }
+      
+      p {
+        font-family: Mochiy Pop P One;
+        text-shadow: rgba(58, 52, 55, 0.35) 2px 2px 3px;
+      }
+
+      .options {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 300px;
+        width: 200px;
+      }
+
+      .option {
+        background-color: whitesmoke;
+        border: 1px solid gray;
+        font-family: Lemon;
+        letter-spacing: 4px;
+        padding: 25px 35px;
+        margin: 4%;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.5s;
+        box-shadow: 2px 2px 5px gray;
+      }
+
+      .option:hover {
+        transform: translateY(-5px);
+        box-shadow: 2px 2px 10px gray;
+      }
+
+      #result {
+        font-size: 36px;
+        margin-top: 20px;
+      }
+
+.modal {
+  display: none; 
+  position: fixed; 
+  z-index: 69; 
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%; 
+  overflow: auto; 
+  background-color: rgb(0,0,0);
+  background-color: rgba(0,0,0,0.4); 
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; 
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+    
+    </style>
+  </head>
+  <body>
+    <h1>Fraction Mania</h1>
+    <div id="question"></div>
+    <div id="options">
+      <button class="option" id="option1"></button>
+      <button class="option" id="option2"></button>
+      <button class="option" id="option3"></button>
+      <button class="option" id="option4"></button>
+      <button class="option" id="option5"></button>
+      <button class="option" id="option6"></button>
+      <button class="option" id="option7"></button>
+      <button class="option" id="option8"></button>
+      <button class="option" id="option9"></button>
+    </div>
+    <p>Score : <span id="score">0</span></p>
+    <p>High Score : <span id="high-score">0</span></p>
+    
+    <div id="result"></div>
+    <script>
+      const fractions = [
+        [7, 2], [9, 2], [11, 2], [8, 4], [15, 2], [19, 2], [23, 2], [27, 2], [31, 2], [35, 2], [39, 2], [43, 2], [47, 2], [5, 3], [8, 3], [11, 3], [14, 3], [17, 3], [20, 3], [23, 3], [26, 3], [29, 3], [9, 4], [7, 4], [11, 4], [15, 4], [19, 4], [23, 4], [27, 4], [31, 4], [35, 4], [39, 4], [10, 3], [11, 5], [9, 5], [14, 5], [19, 5], [24, 5], [29, 5], [34, 5], [39, 5], [44, 5], [49, 5], [13, 6], [11, 6], [17, 6], [23, 6], [29, 6], [35, 6], [41, 6], [47, 6], [53, 6], [59, 6], [17, 4], [19, 5], [23, 7], [13, 7], [20, 7], [27, 7], [34, 7], [41, 7], [48, 7], [55, 7], [62, 7], [69, 7], [76, 7], [83, 7], [90, 7], [97, 7], [104, 7], [29, 8], [15, 8], [23, 8], [31, 8], [39, 8], [47, 8], [55, 8], [63, 8], [71, 8], [79, 8], [87, 8], [95, 8], [103, 8], [111, 8], [119, 8], [31, 9], [21, 13], [34, 13], [47, 13], [60, 13], [73, 13], [86, 13], [99, 13], [112, 13], [125, 13], [138, 13], [151, 13], [164, 13], [144, 12], [177, 13], [190, 13],
+      ];
+
+	const options = document.querySelectorAll("button");
+const questionEl = document.querySelector("#question");
+const resultEl = document.querySelector("#result");
+const scoreEl = document.querySelector("#score");
+const highScoreEl = document.querySelector("#high-score");
+
+let score = 0;
+let correctOptions = [];
+let currentFraction;
+
+function mixedNumber(numerator, denominator) {
+  const whole = Math.floor(numerator / denominator);
+  const remainder = numerator % denominator;
+  return [whole, remainder, denominator];
+}
+
+function simplifyFraction(numerator, denominator) {
+  let gcd = 1;
+  for (let i = 2; i <= Math.min(numerator, denominator); i++) {
+    if (numerator % i === 0 && denominator % i === 0) {
+      gcd = i;
+    }
+  }
+  return [numerator / gcd, denominator / gcd];
+}
+
+function randomOption(options) {
+  const randomIndex = Math.floor(Math.random() * options.length);
+  return options[randomIndex];
+}
+
+let mixedNumbers = [];
+
+function displayQuestion() {
+  mixedNumbers = [];
+  const randomFraction = fractions[Math.floor(Math.random() * fractions.length)];
+  currentFraction = randomFraction;
+  questionEl.textContent = `What is the mixed number representation of ${randomFraction[0]}/${randomFraction[1]}?`;
+
+  let mixed = mixedNumber(...randomFraction);
+  mixedNumbers.push(mixed.join("/"));
+
+  correctOptions = [randomOption(options)];
+  const simplifiedMixed = simplifyFraction(mixed[1], mixed[2]);
+  correctOptions[0].textContent = `${mixed[0]} ${simplifiedMixed[0]}/${simplifiedMixed[1]}`;
+
+  const usedOptions = [correctOptions[0]];
+  for (const option of options) {
+    option.style.backgroundColor = "";
+    option.style.transform = "";
+    option.style.opacity = "1";
+
+    if (correctOptions.includes(option)) continue;
+
+    let mixed;
+    do {
+      const randomFraction =
+        fractions[Math.floor(Math.random() * fractions.length)];
+      mixed = mixedNumber(...randomFraction);
+    } while (usedOptions.includes(mixed) || mixedNumbers.includes(mixed.join("/")));
+
+    mixedNumbers.push(mixed.join("/"));
+    usedOptions.push(mixed);
+    const simplifiedMixed = simplifyFraction(mixed[1], mixed[2]);
+    option.textContent = `${mixed[0]} ${simplifiedMixed[0]}/${simplifiedMixed[1]}`;
+  }
+}
+
+const modal = document.createElement("div");
+modal.style.backgroundColor = "white";
+modal.style.padding = "20px";
+modal.style.borderRadius = "5px";
+modal.style.fontSize = "20px";
+modal.style.textAlign = "center";
+modal.style.position = "fixed";
+modal.style.top = "50%";
+modal.style.left = "50%";
+modal.style.transform = "translate(-50%, -50%)";
+
+for (const option of options) {
+  option.addEventListener("click", e => {
+    if (option.classList.contains("clicked")) return;
+
+    if (correctOptions.includes(option)) {
+      option.style.backgroundColor = "lightgreen";
+      option.style.transform = "translateY(-100%)";
+      score++;
+      scoreEl.textContent = `${score}`;
+      const highScore = Math.max(score, JSON.parse(localStorage.getItem("highScore")) || 0);
+      highScoreEl.textContent = `${highScore}`;
+      localStorage.setItem("highScore", JSON.stringify(highScore));
+
+      let message = "";
+
+      if (score == 3) {  message = "Nice Streak!";
+      } else if (score == 6) {
+        message = "Marvelous!";
+      } else if (score == 8) {
+        message = "Great Run!";
+      } else if (score == 12) {
+        message = "Magnificent Streak!";
+      } else if (score == 16) {
+        message = "Unbelievable!";
+      } else if (score == 25) {
+        message = "Unstoppable!";
+      } else if (score == 38) {
+        message = "Insane Run!";
+      } else if (score == 50) {
+        message = "Amazing!!";
+      } else if (score == 60) {
+        message = "Truly Talented!";
+      } else if (score == 100) {
+        message = "Impossibly Good!";
+      } else if (score == 200) {
+        message = "You have no life!";
+      }
+
+      if (message) {
+        modal.textContent = message;
+        document.body.appendChild(modal);
+
+        setTimeout(() => {
+          modal.remove();
+        }, 1500);
+      }
+
+      setTimeout(() => {
+        displayQuestion();
+        option.classList.remove("clicked");
+      }, 2000);
+    } else {
+      option.style.backgroundColor = "lightcoral";
+      option.style.opacity = "0";
+      score = 0;
+      scoreEl.textContent = `${score}`;
+    }
+  });
+}
+
+displayQuestion();
+
+    </script>
+  </body>
+</html>
